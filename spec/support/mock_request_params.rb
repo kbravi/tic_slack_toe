@@ -39,4 +39,57 @@ module Slacker
       ).deep_merge!(preset)
     end
   end
+
+  class MockActionRequest
+    attr_accessor :preset
+    def initialize(preset=Hash.new)
+      @preset = preset
+    end
+
+    def verified
+      {
+        "payload" => payload.deep_merge!(preset)
+      }
+    end
+
+    def unverified
+      {
+        "payload" =>  payload.deep_merge!({
+                        "token" => ENV['SLACK_VERIFICATION_TOKEN'] + "INVALID"
+                      }).deep_merge!(preset)
+      }
+    end
+
+    def verified_invalid_team
+      {
+        "payload" =>  payload.deep_merge!({
+                        "team" => {"id" => 0}
+                      }).deep_merge!(preset)
+      }
+    end
+
+    def payload
+      {
+        "name" => Faker::Name.first_name,
+        "value" => Faker::Name.first_name,
+        "callback_id" => Faker::Name.first_name,
+        "team" => {
+          "id" => Faker::Code.asin,
+          "domain" => Faker::Internet.domain_name
+        },
+        "channel" => {
+          "id" => Faker::Code.asin,
+          "name" => Faker::Name.first_name
+        },
+        "user" => {
+          "id" => Faker::Code.asin,
+          "name" => Faker::Name.first_name
+        },
+        "action_ts" => Faker::Code.asin,
+        "message_ts" => Faker::Code.asin,
+        "attachment_id" => Faker::Code.asin,
+        "token" => ENV["SLACK_VERIFICATION_TOKEN"]
+      }
+    end
+  end
 end

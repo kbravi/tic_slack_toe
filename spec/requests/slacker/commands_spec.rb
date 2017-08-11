@@ -5,7 +5,12 @@ RSpec.describe "Slacker::Commands", type: :request do
   describe "POST /slacker/commands/receive" do
     it "successfully responds to an authentic request" do
       post '/slacker/commands/receive',
-            params: Slacker::MockCommandRequest.new({"team_id" => create(:team).slack_identifier}).verified
+            params: Slacker::MockCommandRequest.new(
+                  {
+                    "team_id" => create(:team).slack_identifier,
+                    :command => Slacker::CommandsController::ALLOWED_COMMANDS.first
+                  }
+                ).verified
       expect(response).to have_http_status(200)
     end
 
