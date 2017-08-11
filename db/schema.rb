@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170811164750) do
+ActiveRecord::Schema.define(version: 20170811170113) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,19 @@ ActiveRecord::Schema.define(version: 20170811164750) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.text "name"
+    t.string "slack_identifier"
+    t.text "slack_url"
+    t.text "email_domain"
+    t.text "slack_access_token"
+    t.text "slack_icon_url"
+    t.string "slack_authorized_user_identifier"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slack_identifier"], name: "index_teams_on_slack_identifier"
   end
 
 end
