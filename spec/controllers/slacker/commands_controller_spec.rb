@@ -21,7 +21,7 @@ RSpec.describe Slacker::CommandsController, type: :controller do
                   }
                 ).verified
       expect(response).to have_http_status(:bad_request)
-      expect(JSON.parse(response.body)["error"]).to eq("Sorry. I don't understand the command")
+      expect(JSON.parse(response.body)["text"]).to eq("That was not a supported command")
     end
   end
 end

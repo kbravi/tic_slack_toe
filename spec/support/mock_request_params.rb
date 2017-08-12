@@ -85,6 +85,13 @@ module Slacker
           "id" => Faker::Code.asin,
           "name" => Faker::Name.first_name
         },
+        "actions" =>[
+          {
+            "name" => Faker::Code.asin,
+            "value" => Faker::Name.first_name,
+            "type" => "button"
+          }
+        ],
         "action_ts" => Faker::Code.asin,
         "message_ts" => Faker::Code.asin,
         "attachment_id" => Faker::Code.asin,

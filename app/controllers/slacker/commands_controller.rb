@@ -6,65 +6,65 @@ class Slacker::CommandsController < ApplicationController
 
   def receive
     if @team.blank?
-      render :json => {:error => "Incomplete request"}, :status => :not_found and return
-    end
-    case params[:command]
-    when "/ttt"
-      case params[:text]
-      when "help"
-        render :json => {:text => "I am helping"}, :status => :ok
-      when "test"
-        render :json => button_test.as_json, :status => :ok
-      else
-        render :json => {:text => params[:text]}, :status => :ok
-      end
+      render :json => {:text => "Incomplete request"}, :status => :not_found
     else
-      render :json => {:error => "Sorry. I don't understand the command"}, :status => :bad_request
+      case params[:command]
+      when "/ttt"
+        first_word, second_word = params[:text].to_s.split(' ')
+        channel_identifier = params[:channel_id]
+        case first_word
+        when "new"
+          challenger_identifier = params[:user_id]
+          defendent_identifier = extract_slack_user_identifier_from_text(second_word)
+          message = @team.new_game(channel_identifier, challenger_identifier, defendent_identifier)
+        when "current"
+          message = @team.current_game(channel_identifier)
+        when "leaderboard"
+          if second_word == "here"
+            message = @team.leaderboard(channel_identifier)
+          else
+            message = @team.leaderboard
+          end
+        when "help"
+          message = help_message
+        else
+          message = unidentified_message
+        end
+        render :json => message, :status => :ok
+      else
+        render :json => {:text => "That was not a supported command"}, :status => :bad_request
+      end
     end
   end
 
   private
 
-  def button_test
-    {
-      "text" => "Would you like to play a game?",
-      "attachments" => [
-        {
-          "text" => "Choose a game to play",
-          "fallback" => "You are unable to choose a game",
-          "callback_id" => "wopr_game",
-          "color" => "#3AA3E3",
-          "attachment_type" => "default",
-          "actions" => [
-            {
-              "name" => "game",
-              "text" => "Chess",
-              "type" => "button",
-              "value" => "chess"
-            },
-            {
-              "name" => "game",
-              "text" => "Falken's Maze",
-              "type" => "button",
-              "value" => "maze"
-            },
-            {
-              "name" => "game",
-              "text" => "Thermonuclear War",
-              "style" => "danger",
-              "type" => "button",
-              "value" => "war",
-              "confirm" => {
-                  "title" => "Are you sure?",
-                  "text" => "Wouldn't you prefer a good game of chess?",
-                  "ok_text" => "Yes",
-                  "dismiss_text" => "No"
-              }
-            }
-          ]
-        }
-      ]
+  def extract_slack_user_identifier_from_text(text)
+    if text.to_s.include? '|' and text.to_s.include? '<@'
+      return text.to_s.split('|').first.to_s.split('<@').last
+    else
+      return text.to_s
+    end
+  end
+
+  def help_message
+    help_text = "Hey, you! :wave:\n"
+    help_text += "Would you like to indulge in some *Tic Tac Toe* fun?:\n"
+    help_text += "Here are some commands:\n"
+    help_text += "*/ttt new @sombody* will let you start a new game with anybody (not yourself, ofcourse - that would be wrong)\n"
+    help_text += "*/ttt current* will let you know about the currently active game in that channel\n"
+    help_text += "*/ttt leaderboard here* will display the leaders in that channel\n"
+    help_text += "*/ttt leaderboard* will display the leaders across your team\n"
+    return {
+      :text => help_text,
+      :response_type => "ephemeral"
     }
   end
 
+  def unidentified_message
+    return {
+      :text => "Hmmm. I can't figure out what that meant. Try */ttt help* for available commands.",
+      :response_type => "ephemeral"
+    }
+  end
 end

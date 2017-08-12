@@ -6,7 +6,7 @@ class ApplicationController < ActionController::API
     if params[:token] == ENV["SLACK_VERIFICATION_TOKEN"]
       return true
     else
-      render :json => {:error => "Verification Failed"}, :status => :bad_request
+      render :json => {:text => "Verification Failed"}, :status => :bad_request
       return false
     end
   end
@@ -19,7 +19,7 @@ class ApplicationController < ActionController::API
     if params[:payload][:token] == ENV["SLACK_VERIFICATION_TOKEN"]
       return true
     else
-      render :json => {:error => "Verification Failed"}, :status => :bad_request
+      render :json => {:text => "Verification Failed"}, :status => :bad_request
       return false
     end
   end

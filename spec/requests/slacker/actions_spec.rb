@@ -18,13 +18,13 @@ RSpec.describe "Slacker::Actions", type: :request do
       post '/slacker/actions/receive',
             params: Slacker::MockActionRequest.new({"team" => {"id" => create(:team).slack_identifier}}).unverified
       expect(response).to have_http_status(:bad_request)
-      expect(JSON.parse(response.body)["error"]).to eq("Verification Failed")
+      expect(JSON.parse(response.body)["text"]).to eq("Verification Failed")
     end
 
     it "requires team_id to process the request" do
       post '/slacker/actions/receive', params: Slacker::MockActionRequest.new.verified_invalid_team
       expect(response).to have_http_status(:not_found)
-      expect(JSON.parse(response.body)["error"]).to eq("Incomplete request")
+      expect(JSON.parse(response.body)["text"]).to eq("Incomplete request")
     end
   end
 end
