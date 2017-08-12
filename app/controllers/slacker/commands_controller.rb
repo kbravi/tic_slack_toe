@@ -6,7 +6,7 @@ class Slacker::CommandsController < ApplicationController
 
   def receive
     if @team.blank?
-      render :json => {:text => "Incomplete request"}, :status => :not_found
+      render not_found_response(build_ephemeral(incomplete_request_message))
     else
       case params[:command]
       when "/ttt"
@@ -16,55 +16,24 @@ class Slacker::CommandsController < ApplicationController
         when "new"
           challenger_identifier = params[:user_id]
           defendent_identifier = extract_slack_user_identifier_from_text(second_word)
-          message = @team.new_game(channel_identifier, challenger_identifier, defendent_identifier)
+          response_message = @team.new_game(channel_identifier, challenger_identifier, defendent_identifier)
         when "current"
-          message = @team.current_game(channel_identifier)
+          response_message = @team.current_game(channel_identifier)
         when "leaderboard"
           if second_word == "here"
-            message = @team.leaderboard(channel_identifier)
+            response_message = @team.leaderboard(channel_identifier)
           else
-            message = @team.leaderboard
+            response_message = @team.leaderboard
           end
         when "help"
-          message = help_message
+          response_message = help_message
         else
-          message = unidentified_message
+          response_message = unidentified_command_message
         end
-        render :json => message, :status => :ok
+        render success_response(response_message)
       else
-        render :json => {:text => "That was not a supported command"}, :status => :bad_request
+        render bad_request_response(build_ephemeral(unsupported_command_message))
       end
     end
-  end
-
-  private
-
-  def extract_slack_user_identifier_from_text(text)
-    if text.to_s.include? '|' and text.to_s.include? '<@'
-      return text.to_s.split('|').first.to_s.split('<@').last
-    else
-      return text.to_s
-    end
-  end
-
-  def help_message
-    help_text = "Hey, you! :wave:\n"
-    help_text += "Would you like to indulge in some *Tic Tac Toe* fun?:\n"
-    help_text += "Here are some commands:\n"
-    help_text += "*/ttt new @sombody* will let you start a new game with anybody (not yourself, ofcourse - that would be wrong)\n"
-    help_text += "*/ttt current* will let you know about the currently active game in that channel\n"
-    help_text += "*/ttt leaderboard here* will display the leaders in that channel\n"
-    help_text += "*/ttt leaderboard* will display the leaders across your team\n"
-    return {
-      :text => help_text,
-      :response_type => "ephemeral"
-    }
-  end
-
-  def unidentified_message
-    return {
-      :text => "Hmmm. I can't figure out what that meant. Try */ttt help* for available commands.",
-      :response_type => "ephemeral"
-    }
   end
 end

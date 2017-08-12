@@ -15,8 +15,8 @@ FactoryGirl.define do
   factory :game do
     team
     channel_identifier {Faker::Code.asin}
-    player1_identifier {Faker::Code.asin}
-    player2_identifier {Faker::Code.asin}
+    player1_identifier {Faker::Code.unique.asin}
+    player2_identifier {Faker::Code.unique.asin}
     challenger_identifier { player1_identifier }
   end
 

@@ -7,11 +7,11 @@ class Team < ApplicationRecord
   def new_game(channel_identifier, challenger_identifier, defendent_identifier)
     current_game = self.games.where(:channel_identifier => channel_identifier).active.first
     if current_game.present?
-      return {:text => "There is an active game going on between <@#{current_game.player1_identifier}> and <@#{current_game.player2_identifier}>. Type */ttt current* to see the board", :response_type => "ephemeral"}
+      return build_ephemeral("There is an active game going on between <@#{current_game.player1_identifier}> and <@#{current_game.player2_identifier}>. Type */ttt current* to see the board")
     elsif defendent_identifier.blank?
-      return {:text => "Please tag your opponent. Try */ttt new @somebody*", :response_type => "ephemeral"}
+      return build_ephemeral("Please tag your opponent. Try */ttt new @somebody*")
     elsif challenger_identifier == defendent_identifier
-      return {:text => "Come on, you can't play yourself and win everytime :wink: Try */ttt new @somebody_else*", :response_type => "ephemeral"}
+      return build_ephemeral("Come on, you can't play yourself and win everytime :wink: Try */ttt new @somebody_else*")
     else
       game = self.games.new(:channel_identifier => channel_identifier)
       game.player1_identifier, game.player2_identifier = [challenger_identifier, defendent_identifier].shuffle
@@ -19,7 +19,7 @@ class Team < ApplicationRecord
       if game.save
         return game.build_current_board.deep_merge!({:response_type => "in_channel"})
       else
-        return {:text => "Sorry, something went wrong on our end", :response_type => "ephemeral"}
+        return build_ephemeral("Sorry, something went wrong on our end")
       end
     end
   end
@@ -29,7 +29,7 @@ class Team < ApplicationRecord
     if current_game.present?
       current_game.build_current_board.deep_merge!({:response_type => "ephemeral"})
     else
-      return {:text => "There is no active game here. Try */ttt new @somebody* to start a new game.", :response_type => "ephemeral"}
+      return build_ephemeral("There is no active game here. Try */ttt new @somebody* to start a new game.")
     end
   end
 
@@ -45,9 +45,9 @@ class Team < ApplicationRecord
         move.save
         game.reload.evaluate_board_for_results
       end
-      return game.reload.build_current_board.deep_merge!({:response_type => "in_channel"})
+      return build_replace_original(build_in_channel(game.reload.build_current_board))
     else
-      return {:text => "Uh ho. That shouldn't have happened. Now, I'm confused :thinking_face:"}
+      return build_ephemeral("Uh ho. That shouldn't have happened. Now, I'm confused :thinking_face:")
     end
   end
 
@@ -56,16 +56,9 @@ class Team < ApplicationRecord
     games = games.where(:channel_identifier => channel_identifier) if channel_identifier.present?
     players = Hash[array_group_count_sort(games.map{|game| [game.player1_identifier, game.player2_identifier]}.flatten)]
     winners = Hash[array_group_count_sort(games.map{|game| game.winner_identifier})]
-    return {
-      :response_type => "in_channel",
-      :text => "*Tic Slack Toe - Leaderboard* #{"(this channel)" if channel_identifier.present?}",
-      :attachments => players.map{|player, count| {:text => "<@#{player}> played #{count.to_i} times and won #{winners[player].to_i} times" }}
-    }
-  end
-
-  def array_group_count_sort(array)
-    h = Hash.new(0)
-    array.each{|x| h[x] = h[x].to_i + 1}
-    return h.sort_by{|k,v| -v}
+    return build_in_channel({
+        :text => "*Tic Slack Toe - Leaderboard* #{"(this channel)" if channel_identifier.present?}",
+        :attachments => players.map{|player, count| {:text => "<@#{player}> played #{count.to_i} games and won #{winners[player].to_i} times" }}
+      })
   end
 end

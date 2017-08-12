@@ -7,19 +7,20 @@ class Slacker::ActionsController < ApplicationController
 
   def receive
     if @team.blank? or params[:payload].blank?
-      render :json => {:text => "Incomplete request"}, :status => :not_found and return
-    end
-    payload = params[:payload]
-    callback_id = payload[:callback_id].to_s
-    case callback_id
-    when Game::ACTION_CALLBACK_KEY
-      channel_identifier = payload[:channel][:id]
-      player_identifier = payload[:user][:id]
-      actions = payload[:actions]
-      message = @team.process_move(channel_identifier, player_identifier, actions)
-      render :json => message, :status => :ok
+      render not_found_response(build_ephemeral(incomplete_request_message))
     else
-      render :json => {:text => "Sorry. I don't understand the request"}, :status => :bad_request
+      payload = params[:payload]
+      callback_id = payload[:callback_id].to_s
+      case callback_id
+      when Game::ACTION_CALLBACK_KEY
+        channel_identifier = payload[:channel][:id]
+        player_identifier = payload[:user][:id]
+        actions = payload[:actions]
+        response_message = @team.process_move(channel_identifier, player_identifier, actions)
+        render success_response(response_message)
+      else
+        render bad_request_response(build_ephemeral(unsupported_action_message))
+      end
     end
   end
 end

@@ -4,6 +4,7 @@ RSpec.describe Slacker::CommandsController, type: :controller do
 
   describe "POST #receive" do
     it "accepts allowed commands and responds" do
+      expect(controller).to_not receive(:unsupported_command_message)
       post :receive, params: Slacker::MockCommandRequest.new(
                   {
                     "team_id" => create(:team).slack_identifier,
@@ -14,6 +15,7 @@ RSpec.describe Slacker::CommandsController, type: :controller do
     end
 
     it "doesn't allow other commands" do
+      expect(controller).to receive(:unsupported_command_message)
       post :receive, params: Slacker::MockCommandRequest.new(
                   {
                     "team_id" => create(:team).slack_identifier,
@@ -21,7 +23,6 @@ RSpec.describe Slacker::CommandsController, type: :controller do
                   }
                 ).verified
       expect(response).to have_http_status(:bad_request)
-      expect(JSON.parse(response.body)["text"]).to eq("That was not a supported command")
     end
   end
 end

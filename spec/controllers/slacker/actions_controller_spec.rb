@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Slacker::ActionsController, type: :controller do
   describe "POST #receive" do
     it "accepts requests with allowed callback actions" do
+      expect(controller).to_not receive(:unsupported_action_message)
       post :receive, params: Slacker::MockActionRequest.new(
                   {
                     "team" => {"id" => create(:team).slack_identifier},
@@ -13,6 +14,7 @@ RSpec.describe Slacker::ActionsController, type: :controller do
     end
 
     it "doesn't process other actions" do
+      expect(controller).to receive(:unsupported_action_message)
       post :receive, params: Slacker::MockActionRequest.new(
                   {
                     "team" => {"id" => create(:team).slack_identifier},
@@ -20,7 +22,6 @@ RSpec.describe Slacker::ActionsController, type: :controller do
                   }
                 ).verified
       expect(response).to have_http_status(:bad_request)
-      expect(JSON.parse(response.body)["text"]).to eq("Sorry. I don't understand the request")
     end
   end
 end
