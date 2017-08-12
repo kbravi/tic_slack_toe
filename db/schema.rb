@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170811170113) do
+ActiveRecord::Schema.define(version: 20170811232514) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,35 @@ ActiveRecord::Schema.define(version: 20170811170113) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+  end
+
+  create_table "games", force: :cascade do |t|
+    t.integer "team_id"
+    t.string "channel_identifier"
+    t.string "player1_identifier"
+    t.string "player2_identifier"
+    t.string "challenger_identifier"
+    t.boolean "complete", default: false
+    t.string "winner_identifier"
+    t.integer "moves_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["channel_identifier"], name: "index_games_on_channel_identifier"
+    t.index ["team_id", "channel_identifier", "complete"], name: "index_team_channel_complete_on_game"
+    t.index ["team_id", "channel_identifier"], name: "index_games_on_team_id_and_channel_identifier"
+    t.index ["team_id"], name: "index_games_on_team_id"
+    t.index ["winner_identifier"], name: "index_games_on_winner_identifier"
+  end
+
+  create_table "moves", force: :cascade do |t|
+    t.integer "game_id"
+    t.integer "row"
+    t.integer "column"
+    t.boolean "player1_move", default: false
+    t.boolean "player2_move", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_moves_on_game_id"
   end
 
   create_table "teams", force: :cascade do |t|
