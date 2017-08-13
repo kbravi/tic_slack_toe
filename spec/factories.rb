@@ -5,7 +5,7 @@ FactoryGirl.define do
   factory :team do
     name {Faker::Company.name}
     slack_url {Faker::Internet.url}
-    slack_identifier {Faker::Code.asin}
+    slack_identifier {Faker::Code.unique.asin}
     email_domain {Faker::Internet.domain_name}
     slack_access_token {Faker::Crypto.md5}
     slack_icon_url {Faker::Placeholdit.image}
@@ -14,7 +14,7 @@ FactoryGirl.define do
 
   factory :game do
     team
-    channel_identifier {Faker::Code.asin}
+    channel_identifier {Faker::Code.unique.asin}
     player1_identifier {Faker::Code.unique.asin}
     player2_identifier {Faker::Code.unique.asin}
     challenger_identifier { player1_identifier }

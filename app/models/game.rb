@@ -22,9 +22,28 @@ class Game < ApplicationRecord
 
   before_save :mark_complete_if_necessary
 
+  def self.winner_combinations
+    winning_moves = Array.new
+    [*1..BOARD_SIZE].each do |row|
+      winning_moves <<  [*1..BOARD_SIZE].map{|col| [row, col]}
+      winning_moves <<  [*1..BOARD_SIZE].map{|col| [col, row]}
+    end
+    winning_moves <<  [*1..BOARD_SIZE].map{|row_col| [row_col, row_col]}
+    winning_moves <<  [*1..BOARD_SIZE].map{|row_col| [row_col, BOARD_SIZE - row_col + 1]}
+    return winning_moves
+  end
+
   def next_player
-    # Whoever plays first is assigned player1. Players take alternate turns.
+    # Whoever plays first is assigned player1. Players take alternate turns. This ensures that.
     (moves_by_player[:player1].size == moves_by_player[:player2].size) ? self.player1_identifier : self.player2_identifier
+  end
+
+  def defendent_identifier
+    (self.challenger_identifier == self.player1_identifier) ? self.player2_identifier : self.player1_identifier
+  end
+
+  def game_over?
+    return (self.moves_count >= MAX_MOVES or winner_identifier.present?)
   end
 
   def moves_by_player
@@ -33,9 +52,17 @@ class Game < ApplicationRecord
     return {:player1 => player1_moves, :player2 => player2_moves}
   end
 
-  def defendent_identifier
-    (self.challenger_identifier == self.player1_identifier) ? self.player2_identifier : self.player1_identifier
+  def evaluate_board_for_results
+    player1_move_positions = self.moves_by_player[:player1].map{|move| [move.row, move.column]}
+    player2_move_positions = self.moves_by_player[:player2].map{|move| [move.row, move.column]}
+    if Game.winner_combinations.any?{|streak| streak.all?{|position| player1_move_positions.include? position}}
+      self.update(:winner_identifier => self.player1_identifier)
+    elsif Game.winner_combinations.any?{|streak| streak.all?{|position| player2_move_positions.include? position}}
+      self.update(:winner_identifier => self.player2_identifier)
+    end
+    self.update(:complete => true) if self.game_over?
   end
+
 
   def build_current_board
     {
@@ -90,32 +117,6 @@ class Game < ApplicationRecord
       }
     end
     return result
-  end
-
-  def self.winner_combinations
-    winning_moves = Array.new
-    [*1..BOARD_SIZE].each do |row|
-      winning_moves <<  [*1..BOARD_SIZE].map{|col| [row, col]}
-      winning_moves <<  [*1..BOARD_SIZE].map{|col| [col, row]}
-    end
-    winning_moves <<  [*1..BOARD_SIZE].map{|row_col| [row_col, row_col]}
-    winning_moves <<  [*1..BOARD_SIZE].map{|row_col| [row_col, BOARD_SIZE - row_col + 1]}
-    return winning_moves
-  end
-
-  def evaluate_board_for_results
-    player1_move_positions = self.moves_by_player[:player1].map{|move| [move.row, move.column]}
-    player2_move_positions = self.moves_by_player[:player2].map{|move| [move.row, move.column]}
-    if Game.winner_combinations.any?{|streak| streak.all?{|position| player1_move_positions.include? position}}
-      self.update(:winner_identifier => self.player1_identifier)
-    elsif Game.winner_combinations.any?{|streak| streak.all?{|position| player2_move_positions.include? position}}
-      self.update(:winner_identifier => self.player2_identifier)
-    end
-    self.update(:complete => true) if self.game_over?
-  end
-
-  def game_over?
-    return (self.moves_count >= MAX_MOVES or winner_identifier.present?)
   end
 
   private

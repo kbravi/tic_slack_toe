@@ -99,4 +99,20 @@ module Slacker
       }
     end
   end
+
+  class MockMoveAction
+    def initialize(game_id, row, column)
+      @game_id = game_id
+      @row = row
+      @column = column
+    end
+
+    def formatted
+      return [{
+        :name => "#{@game_id}",
+        :value => "#{@row},#{@column}",
+        :type => "button"
+      }]
+    end
+  end
 end

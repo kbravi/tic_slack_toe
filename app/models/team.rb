@@ -17,7 +17,7 @@ class Team < ApplicationRecord
       game.player1_identifier, game.player2_identifier = [challenger_identifier, defendent_identifier].shuffle
       game.challenger_identifier = challenger_identifier
       if game.save
-        return game.build_current_board.deep_merge!({:response_type => "in_channel"})
+        return build_in_channel(game.build_current_board)
       else
         return build_ephemeral("Sorry, something went wrong on our end")
       end
@@ -27,7 +27,7 @@ class Team < ApplicationRecord
   def current_game(channel_identifier)
     current_game = self.games.where(:channel_identifier => channel_identifier).active.first
     if current_game.present?
-      current_game.build_current_board.deep_merge!({:response_type => "ephemeral"})
+      build_ephemeral(current_game.build_current_board)
     else
       return build_ephemeral("There is no active game here. Try */ttt new @somebody* to start a new game.")
     end
@@ -37,7 +37,7 @@ class Team < ApplicationRecord
     button_action = actions.first
     game = self.games.where(:channel_identifier => channel_identifier, :id => button_action[:name].to_i).first
     if game.present?
-      if game.next_player == player_identifier
+      if (not game.complete) and (game.next_player == player_identifier)
         row, column = button_action[:value].split(',').map(&:to_i)
         player1_move = (player_identifier == game.player1_identifier)
         player2_move = (player_identifier == game.player2_identifier)

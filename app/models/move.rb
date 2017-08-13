@@ -7,7 +7,7 @@ class Move < ApplicationRecord
   validates_uniqueness_of :column, :scope => [:game_id, :row]
 
   validate :legal_row, :legal_column
-  validate :exclusive_play, :player1_plays_first, :players_alternate_play
+  validate :exclusive_play
 
 
   private
@@ -28,13 +28,5 @@ class Move < ApplicationRecord
     if(player2_move == player1_move)
       self.errors.add(:player1_move, " only one player can play a move")
     end
-  end
-
-  def player1_plays_first
-    return true
-  end
-
-  def players_alternate_play
-    return true
   end
 end
