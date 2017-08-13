@@ -1,4 +1,8 @@
 class TeamsController < ApplicationController
+  # /auth/:provider/callback
+  # /auth/slack/callback is the oauth redirect URL when somebody adds this app to their team
+  # This action will create or update a team record uniquely defined by 'slack_identifier'
+  # redirects_to the team's slack on success
   def connect
     if request.env["omniauth.auth"].present?
       auth = request.env["omniauth.auth"]
@@ -24,6 +28,11 @@ class TeamsController < ApplicationController
     redirect_to :action => :connect_failure and return
   end
 
+  # /auth/:provider/failure
+  # Redirects to the public sorry.html page
+  # This is triggered
+  #   a. by the omniauth gem when the user declines permissions when adding app to slack
+  #   b. by the connect action when something goes wrong
   def connect_failure
     redirect_to '/sorry'
   end

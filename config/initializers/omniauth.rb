@@ -1,4 +1,5 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
+  # Slack oAuth flow: Requires team:read and commands permissions
   provider :slack, ENV['SLACK_CLIENT_ID'], ENV['SLACK_CLIENT_SECRET'], scope: 'team:read,commands'
 end
 
@@ -6,6 +7,7 @@ OmniAuth.config.on_failure = Proc.new { |env|
   OmniAuth::FailureEndPointRetainParams.new(env).redirect_to_failure
 }
 
+# Custom OmniAuth redirect module to pass on the params on omniauth failure
 module OmniAuth
   class FailureEndPointRetainParams < OmniAuth::FailureEndpoint
     def redirect_to_failure
