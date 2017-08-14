@@ -10,7 +10,7 @@ class Game < ApplicationRecord
   # winner_identifier: Can be set to the values player1_identifier, or player2_identifier, or neither
   # moves_count: Caches the count of moves in the game - uses counter_cache on the associated moves model
 
-  BOARD_SIZE = 4 # Can set size of the Tic Tac Toe board.
+  BOARD_SIZE = 3 # Can set size of the Tic Tac Toe board.
   MAX_MOVES = BOARD_SIZE**2
   DEFAULT_BUTTON_TEXT = ":white_large_square:" # Unplayed Tile
   PLAYER1_BUTTON_TEXT = ":x:" # Tile claimed by Player 1
