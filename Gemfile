@@ -51,6 +51,7 @@ group :test do
   gem "shoulda-matchers"
   gem 'rspec-retry'
   gem 'rspec-instafail'
+  gem 'simplecov'
 end
 
 
