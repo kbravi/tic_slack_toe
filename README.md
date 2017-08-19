@@ -4,6 +4,9 @@ A Tic Tac Toe game played in Slack. This app is hosted on Heroku.
 
 Add to any Slack team by visiting [https://kbravi-tic-slack-toe.herokuapp.com](https://kbravi-tic-slack-toe.herokuapp.com)
 
+![Sample Board 1](http://i.imgur.com/4MSH7VQ.png)
+![Sample Board 2](http://i.imgur.com/HEX8DCJ.png)
+
 ## Features
 * An interactive game board with action buttons.
 * Play a game with any member of your slack team. The game board is public to the channel.
@@ -115,9 +118,4 @@ bundle exec rspec
 * Game level board size customizations: Currently, the app supports App level customization and it is defined in the codebase. But, it is very easy to move to a game level board_size customization
 
 * Multiple players: Although traditional TicTacToe is played between two players, it is easy to scale this to multiple players with some changes.
-
-## Resources
-* Karthik Ravichandran (Author): kb1990@gmail.com
-* Original Tic Slack Toe App ID: A6MHQV61J
-* Heroku URL: https://kbravi-tic-slack-toe.herokuapp.com
 
