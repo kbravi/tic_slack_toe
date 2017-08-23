@@ -83,9 +83,9 @@ There are three controllers
 
 At any point, anybody in the channel can
 1. Type `/ttt current` to view the currently active game board privately.
-2. Type '/ttt leaderboard here' to view the leaders in the channel.
-3. Type '/ttt leaderboard' to view the leaders across their Slack team.
-4. Type '/ttt help' to view the list of available commands.
+2. Type `/ttt leaderboard here` to view the leaders in the channel.
+3. Type `/ttt leaderboard` to view the leaders across their Slack team.
+4. Type `/ttt help` to view the list of available commands.
 
 
 ### How to run locally
@@ -102,7 +102,7 @@ These are NOT included in this repository for obvious privacy concerns. The appl
 You can find these credentials in the App Credentials section of the Slack App page.
 
 ```
-# in config/applcation.yml
+# in config/application.yml
 SLACK_CLIENT_ID: <SLACK_CLIENT_ID>
 SLACK_CLIENT_SECRET: <SLACK_CLIENT_SECRET>
 SLACK_VERIFICATION_TOKEN: <SLACK_VERIFICATION_TOKEN>
